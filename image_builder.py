@@ -1,18 +1,11 @@
 import threading
-
 import numpy as np
 import cv2
-
 import GUI
 import imageConverter
-from Image import Image
-from Client import Client
 import uuid
-import json
 import requests
 from GUI import inicialize
-import main
-import testCNN
 
 nameWindow ="Calculadora Canny"
 def nothing(x):
@@ -57,18 +50,12 @@ def detectarForma(imagen,imagen_countours,img_name, predict=False):
     for figuraActual in figuras:
         if (areas[i] >= areaMinima):
             vertices = cv2.approxPolyDP(figuraActual, 0.05 * cv2.arcLength(figuraActual, True), True)
-            ##print(vertices[0][0])
             if (len(vertices) == 3):
                 pass
-                # mensaje="Triangulo"
-                # cv2.putText(imagen, mensaje, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                # cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
             elif (len(vertices) == 4):
-                mensaje = "Billete de fuck detectado"
-                #print("cuadrilatero")
+                mensaje = "Billete detectado"
                 cv2.putText(imagen_countours, mensaje, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
                 cv2.drawContours(imagen_countours, [figuraActual], 0, (0, 0, 255), 2)
-
                 x, y, w, h = cv2.boundingRect(vertices)
                 new_img = imagen[y:y + h, x:x + w]
                 if(predict):
@@ -76,9 +63,6 @@ def detectarForma(imagen,imagen_countours,img_name, predict=False):
                     return new_img
             elif (len(vertices) == 5):
                 pass
-                # mensaje="Pentagono"
-                # cv2.putText(imagen, mensaje, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                # cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
     return imagen
 
 
@@ -92,7 +76,8 @@ imagesrequest=[]
 m3 = None
 m2 = None
 m1 = None
-id_counter = 0
+id_counter = 1
+id_photo_counter = 0
 th = threading.Thread(target=inicialize)  # initialise the thread
 th.setDaemon(True)
 th.start()  # start the thread
@@ -134,27 +119,23 @@ def sendRequest():
 while True:
     _, imagen = camara.read()
     _, imagen_countours = camara.read()
-
     imagen = detectarForma(imagen, imagen_countours, '')
-
-
-
-   # cv2.putText(imagen, f'El valor del  es: {billete}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-    cv2.imshow("Imagen Camara", imagen)
+    cv2.putText(imagen_countours, f'{str(id_photo_counter)} Fotos tomadas ', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
     cv2.imshow("Bordes", imagen_countours)
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
     if k % 256 == 99:
-        img_name = "imagen_{}.jpg".format(img_counter)
+        img_name = "cam_images/imagen_{}.jpg".format(img_counter)
         imagen = detectarForma(imagen,imagen_countours,img_name, True)
         cv2.imwrite(img_name, imagen)
         imgencode = imageConverter.img_to_base64(img_name)
         imgencodes.append(imgencode)
         img_counter += 1
-
+        id_photo_counter +=1
     if k % 256 == 101:
+        GUI.setText("Cargando...")
         sendRequest()
-
+        id_photo_counter = 0
 camara.release()
 cv2.destroyAllWindows()

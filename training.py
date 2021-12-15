@@ -4,6 +4,9 @@ from keras.models import Sequential
 from keras.layers import InputLayer, Conv2D, MaxPool2D, Reshape, Dense, Flatten
 from sklearn.model_selection import KFold
 
+from Prediction import Prediction
+
+
 def load_data(source_path, cat_num, limit, width, height):
     loaded_images = []
     true_value = []
@@ -147,56 +150,6 @@ def model_b():
     print('------------------------------------------------------------------------')
 
 
-''''
-def model_c():
-    inputs = imagenes
-    targets = probabilidades
-    kfold = KFold(n_splits=5, shuffle=True)
-    fold_no = 1
-    # Lista para guardar el accuracy y el loss
-    acc_per_fold = []
-    loss_per_fold = []
-
-    for train, test in kfold.split(inputs, targets):
-        model = Sequential()
-        model.add(InputLayer(input_shape=(pixeles,)))
-        model.add(Reshape(formaImagen))
-        model.add(Conv2D(kernel_size=5, strides=2, filters=512, padding="same", activation="relu", name="capa_1"))
-        model.add(MaxPool2D(pool_size=3, strides=2))
-        # Aplanamiento
-        model.add(Flatten())
-        model.add(Dense(256, activation="relu"))
-        # Capa de salida
-        model.add(Dense(numeroCategorias, activation="softmax"))
-        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
-        # Entrenamiento
-        model.fit(x=inputs[train], y=targets[train], epochs=10, batch_size=60)
-
-        # Evaluacion
-        resultados = model.evaluate(x=inputs[test], y=targets[test])
-        print(f'Score for fold {fold_no}: {model.metrics_names[0]} of {resultados[0]}; {model.metrics_names[1]} of {resultados[1] * 100}%')
-        acc_per_fold.append(resultados[1] * 100)
-        loss_per_fold.append(resultados[0])
-        fold_no = fold_no + 1
-        # Guardar modelo
-        ruta = "models/modeloC.h5"
-        model.save(ruta)
-
-    # == Resultados ==
-    print('------------------------------------------------------------------------')
-    print('Resultado por partición')
-    for i in range(0, len(acc_per_fold)):
-        print('------------------------------------------------------------------------')
-        print(f'> Carpeta {i + 1} - Loss: {loss_per_fold[i]} - Accuracy: {acc_per_fold[i]}%')
-    print('------------------------------------------------------------------------')
-    print('Promedio de resultados de todas las particiones::')
-    print(f'> Accuracy: {np.mean(acc_per_fold)} (+- {np.std(acc_per_fold)})')
-    print(f'> Loss: {np.mean(loss_per_fold)}')
-    print('------------------------------------------------------------------------')
-
-'''
-
-
 def model_c():
     inputs = imagenes
     targets = probabilidades
@@ -264,6 +217,6 @@ cantidaDatosPruebas = [24] * numeroCategorias
 
 # Cargar las imágenes
 imagenes, probabilidades = load_data("dataset/train/", numeroCategorias, cantidaDatosEntrenamiento, ancho, alto)
-model_c()
-# pred = Prediction("models/modeloA.h5", ancho, alto)
-# pred.metrics(imagenes, probabilidades)
+#model_c()
+pred = Prediction("models/modeloC.h5", ancho, alto)
+pred.metrics(imagenes, probabilidades)

@@ -55,8 +55,8 @@ def inicialize():
     global text_area
     text_area = scrolledtext.ScrolledText(win,
                                           wrap=tk.WORD,
-                                          width=80,
-                                          height=100,
+                                          width=60,
+                                          height=30,
                                           font=("Times New Roman",
                                                 15))
 

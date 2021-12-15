@@ -26,3 +26,25 @@ class Prediction():
         print("Predicciones=",predicciones)
         clasesMayores=np.argmax(predicciones,axis=1)
         return clasesMayores[0]
+
+    def metrics(self, imagenesPrueba, probabilidadesPrueba):
+        scnn_pred = self.modelo.predict(imagenesPrueba, batch_size=60, verbose=1)
+        scnn_predicted = np.argmax(scnn_pred, axis=1)
+
+        # Creamos la matriz de confusión
+        scnn_cm = confusion_matrix(np.argmax(probabilidadesPrueba, axis=1), scnn_predicted)
+
+        # Creamos la matriz de confusión
+        scnn_cm = confusion_matrix(np.argmax(probabilidadesPrueba, axis=1), scnn_predicted)
+        print(scnn_cm)
+
+        scnn_df_cm = pd.DataFrame(scnn_cm, range(5), range(5))
+        plt.figure(figsize=(20, 14))
+        sn.set(font_scale=1.4)  # for label size
+        sn.heatmap(scnn_df_cm, annot=True, annot_kws={"size": 12})  # font size
+        plt.show()
+
+        scnn_report = classification_report(np.argmax(probabilidadesPrueba, axis=1), scnn_predicted)
+
+        print(scnn_report)
+        self.modelo.summary()
